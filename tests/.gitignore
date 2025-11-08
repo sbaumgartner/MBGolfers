@@ -1,0 +1,17 @@
+# Node modules
+node_modules/
+
+# Test results
+coverage/
+test-results/
+playwright-report/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
