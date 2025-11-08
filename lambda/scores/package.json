@@ -1,0 +1,15 @@
+{
+  "name": "golf-playgroups-scores",
+  "version": "1.0.0",
+  "description": "Scores Lambda function for Golf Playgroups",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.478.0",
+    "@aws-sdk/lib-dynamodb": "^3.478.0"
+  },
+  "author": "",
+  "license": "MIT"
+}
