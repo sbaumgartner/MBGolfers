@@ -1,0 +1,32 @@
+{
+  "name": "golf-playgroups-tests",
+  "version": "1.0.0",
+  "description": "Automated tests for Golf Playgroups application",
+  "scripts": {
+    "test": "jest",
+    "test:api": "jest tests/api",
+    "test:e2e": "playwright test",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "playwright:install": "playwright install"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.478.0",
+    "@aws-sdk/client-secrets-manager": "^3.478.0",
+    "axios": "^1.6.0",
+    "jest": "^29.7.0",
+    "dotenv": "^16.3.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000,
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "tests/**/*.js"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  }
+}
