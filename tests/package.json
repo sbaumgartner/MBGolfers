@@ -2,12 +2,15 @@
   "name": "golf-playgroups-tests",
   "version": "1.0.0",
   "description": "Automated tests for Golf Playgroups application",
+  "type": "commonjs",
   "scripts": {
-    "test": "jest",
-    "test:api": "jest tests/api",
+    "configure": "node configure-from-outputs.js",
+    "check": "node setup-check.js",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --runInBand",
+    "test:api": "NODE_OPTIONS='--experimental-vm-modules' jest tests/api --runInBand",
     "test:e2e": "playwright test",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch --runInBand",
+    "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage --runInBand",
     "playwright:install": "playwright install"
   },
   "devDependencies": {
@@ -27,6 +30,9 @@
     ],
     "testMatch": [
       "**/tests/**/*.test.js"
-    ]
+    ],
+    "maxWorkers": 1,
+    "detectOpenHandles": true,
+    "forceExit": true
   }
 }
