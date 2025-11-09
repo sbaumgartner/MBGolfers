@@ -84,7 +84,7 @@ async function createTestUser(email, password, role = 'Player') {
   const userPoolId = process.env.COGNITO_USER_POOL_ID;
 
   try {
-    // Create user
+    // Try to create user
     await cognitoClient.send(
       new AdminCreateUserCommand({
         UserPoolId: userPoolId,
@@ -97,6 +97,17 @@ async function createTestUser(email, password, role = 'Player') {
       })
     );
 
+    console.log(`Created test user: ${email}`);
+  } catch (error) {
+    if (error.name === 'UsernameExistsException') {
+      console.log(`User ${email} already exists, updating...`);
+    } else {
+      throw error;
+    }
+  }
+
+  // Always set password and role (for both new and existing users)
+  try {
     // Set permanent password
     await cognitoClient.send(
       new AdminSetUserPasswordCommand({
@@ -118,13 +129,10 @@ async function createTestUser(email, password, role = 'Player') {
       })
     );
 
-    console.log(`Created test user: ${email} with role: ${role}`);
+    console.log(`Configured ${email} with role: ${role}`);
   } catch (error) {
-    if (error.name === 'UsernameExistsException') {
-      console.log(`User ${email} already exists`);
-    } else {
-      throw error;
-    }
+    console.error(`Failed to configure user ${email}:`, error.message);
+    throw error;
   }
 }
 
