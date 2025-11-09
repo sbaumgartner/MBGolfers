@@ -1,0 +1,299 @@
+/**
+ * Scorecard Styles
+ * Styles for the golf scorecard screen
+ */
+
+.scorecard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.scorecard-header {
+  margin-bottom: 30px;
+}
+
+.scorecard-header h1 {
+  margin: 10px 0;
+  color: #2c3e50;
+}
+
+.scorecard-details {
+  color: #7f8c8d;
+  font-size: 16px;
+  margin: 10px 0;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.back-button:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+/* Scorecard Section */
+.scorecard-section {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px;
+}
+
+.scorecard-section h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+/* Scorecard Grid */
+.scorecard-grid {
+  overflow-x: auto;
+}
+
+.scorecard-row {
+  display: grid;
+  grid-template-columns: 80px repeat(9, 1fr) 80px;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.scorecard-row.header {
+  font-weight: 600;
+  background: #ecf0f1;
+  border-radius: 4px;
+  padding: 10px 8px;
+}
+
+.scorecard-row.scores {
+  padding: 5px 8px;
+}
+
+.hole-label {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.hole-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.hole-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-input {
+  width: 100%;
+  max-width: 60px;
+  padding: 10px 8px;
+  text-align: center;
+  border: 2px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: border-color 0.2s;
+}
+
+.score-input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.score-input:disabled {
+  background: #f8f9fa;
+  color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.score-input::-webkit-inner-spin-button,
+.score-input::-webkit-outer-spin-button {
+  opacity: 1;
+  height: 30px;
+}
+
+.hole-total {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.hole-total-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 18px;
+  border-radius: 4px;
+}
+
+/* Total Score */
+.scorecard-total {
+  background: #2c3e50;
+  color: white;
+  padding: 20px 25px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.scorecard-total h3 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Actions */
+.scorecard-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.button-primary {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #229954;
+}
+
+.button-primary:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.button-secondary {
+  background: white;
+  color: #555;
+  border: 2px solid #ddd;
+  padding: 12px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #999;
+}
+
+.button-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Instructions */
+.scorecard-instructions {
+  background: #f8f9fa;
+  padding: 20px 25px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.scorecard-instructions h4 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.scorecard-instructions ul {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+}
+
+.scorecard-instructions li {
+  margin: 8px 0;
+  color: #555;
+}
+
+/* Messages */
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border: 1px solid #c3e6cb;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border: 1px solid #fcc;
+}
+
+.info-message {
+  background: #e3f2fd;
+  color: #1565c0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #7f8c8d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scorecard-row {
+    grid-template-columns: 60px repeat(9, minmax(50px, 1fr)) 60px;
+    gap: 4px;
+  }
+
+  .score-input {
+    max-width: 50px;
+    padding: 8px 4px;
+    font-size: 14px;
+  }
+
+  .hole-number,
+  .hole-label,
+  .hole-total {
+    font-size: 12px;
+  }
+
+  .hole-total-value {
+    font-size: 16px;
+    padding: 8px;
+  }
+}
