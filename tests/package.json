@@ -4,6 +4,7 @@
   "description": "Automated tests for Golf Playgroups application",
   "type": "commonjs",
   "scripts": {
+    "configure": "node configure-from-outputs.js",
     "check": "node setup-check.js",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest --runInBand",
     "test:api": "NODE_OPTIONS='--experimental-vm-modules' jest tests/api --runInBand",
