@@ -3,8 +3,10 @@
  * Handles Cognito authentication for tests
  */
 
-const { CognitoIdentityProviderClient, InitiateAuthCommand, AdminCreateUserCommand, AdminSetUserPasswordCommand, AdminUpdateUserAttributesCommand } = require('@aws-sdk/client-cognito-identity-provider');
+const { CognitoIdentityProviderClient, InitiateAuthCommand, AdminCreateUserCommand, AdminSetUserPasswordCommand, AdminUpdateUserAttributesCommand, AdminGetUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
 const { SecretsManagerClient, GetSecretValueCommand } = require('@aws-sdk/client-secrets-manager');
+const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
+const { DynamoDBDocumentClient, PutCommand } = require('@aws-sdk/lib-dynamodb');
 
 const USE_SECRETS_MANAGER = process.env.USE_SECRETS_MANAGER === 'true';
 const SECRET_NAME = process.env.SECRET_NAME || 'golf-playgroups/test-users';
@@ -16,6 +18,11 @@ const cognitoClient = new CognitoIdentityProviderClient({
 const secretsClient = new SecretsManagerClient({
   region: process.env.AWS_REGION || 'us-east-1'
 });
+
+const ddbClient = new DynamoDBClient({
+  region: process.env.AWS_REGION || 'us-east-1'
+});
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 /**
  * Get test user credentials
@@ -130,6 +137,29 @@ async function createTestUser(email, password, role = 'Player') {
     );
 
     console.log(`Configured ${email} with role: ${role}`);
+    
+    // Also add user to DynamoDB
+    const userInfo = await cognitoClient.send(
+      new AdminGetUserCommand({
+        UserPoolId: userPoolId,
+        Username: email
+      })
+    );
+    
+    const userId = userInfo.UserAttributes.find(attr => attr.Name === 'sub')?.Value;
+    
+    await ddbDocClient.send(
+      new PutCommand({
+        TableName: process.env.USERS_TABLE_NAME,
+        Item: {
+          userId,
+          email,
+          role,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      })
+    );
   } catch (error) {
     console.error(`Failed to configure user ${email}:`, error.message);
     throw error;

@@ -7,7 +7,7 @@
  */
 
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand, ListUsersCommand } = require('@aws-sdk/client-cognito-identity-provider');
 
 const client = new DynamoDBClient({ region: process.env.REGION });
@@ -55,9 +55,28 @@ async function handleGet(event) {
     const currentUser = getUserFromEvent(event);
     const queryParams = event.queryStringParameters || {};
 
-    // Only admins can list all users
+    // Non-admins can query by email (to find users to add to playgroups) or view their own info
     if (currentUser.role !== 'Admin') {
-        // Non-admins can only view their own info
+        // If querying by email, allow it (for GroupLeaders to find players)
+        if (queryParams.email) {
+            try {
+                const result = await ddbDocClient.send(new QueryCommand({
+                    TableName: USERS_TABLE,
+                    IndexName: 'EmailIndex',
+                    KeyConditionExpression: 'email = :email',
+                    ExpressionAttributeValues: {
+                        ':email': queryParams.email
+                    }
+                }));
+
+                return response(200, { users: result.Items || [] });
+            } catch (error) {
+                console.error('Error querying user by email:', error);
+                return response(500, { error: 'Failed to query user' });
+            }
+        }
+        
+        // Otherwise, non-admins can only view their own info
         try {
             const result = await ddbDocClient.send(new GetCommand({
                 TableName: USERS_TABLE,
@@ -90,7 +109,10 @@ async function handleGet(event) {
             result = await ddbDocClient.send(new QueryCommand({
                 TableName: USERS_TABLE,
                 IndexName: 'RoleIndex',
-                KeyConditionExpression: 'role = :role',
+                KeyConditionExpression: '#role = :role',
+                ExpressionAttributeNames: {
+                    '#role': 'role'
+                },
                 ExpressionAttributeValues: {
                     ':role': queryParams.role
                 }
@@ -155,12 +177,16 @@ async function handlePost(event) {
 
         // Update role in DynamoDB
         const updateTime = new Date().toISOString();
-        await ddbDocClient.send(new PutCommand({
+        await ddbDocClient.send(new UpdateCommand({
             TableName: USERS_TABLE,
-            Item: {
-                userId,
-                role,
-                updatedAt: updateTime
+            Key: { userId },
+            UpdateExpression: 'SET #role = :role, updatedAt = :updatedAt',
+            ExpressionAttributeNames: {
+                '#role': 'role'
+            },
+            ExpressionAttributeValues: {
+                ':role': role,
+                ':updatedAt': updateTime
             }
         }));
 

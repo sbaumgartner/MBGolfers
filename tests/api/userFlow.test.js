@@ -30,12 +30,12 @@ describe('Complete User Flow', () => {
   });
 
   test('Step 2: GroupLeader adds players to playgroup', async () => {
-    // Get player user
-    const usersResponse = await groupleaderClient.listUsers();
-    const playerUser = usersResponse.data.users.find(
-      u => u.email === tokens.player.email
-    );
-    playerId = playerUser.userId;
+    // Get player user by email
+    const usersResponse = await groupleaderClient.listUsers({
+      email: tokens.player.email
+    });
+    const playerUser = usersResponse.data.users[0];
+    playerId = playerUser?.userId;
 
     const response = await groupleaderClient.addMember(
       playgroupId,

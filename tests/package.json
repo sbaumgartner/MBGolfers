@@ -14,13 +14,13 @@
     "playwright:install": "playwright install"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.478.0",
     "@aws-sdk/client-secrets-manager": "^3.478.0",
+    "@playwright/test": "^1.40.0",
     "axios": "^1.6.0",
-    "jest": "^29.7.0",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
-    "cross-env": "^7.0.3"
+    "jest": "^29.7.0"
   },
   "jest": {
     "testEnvironment": "node",
@@ -35,5 +35,9 @@
     "maxWorkers": 1,
     "detectOpenHandles": true,
     "forceExit": true
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.927.0",
+    "@aws-sdk/lib-dynamodb": "^3.927.0"
   }
 }

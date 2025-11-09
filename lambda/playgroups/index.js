@@ -7,7 +7,7 @@
  */
 
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const { v4: uuidv4 } = require('uuid');
 
 const client = new DynamoDBClient({ region: process.env.REGION });
@@ -83,7 +83,7 @@ async function handleGet(event) {
 
             // Then scan for playgroups where user is a member
             // Note: In production, consider maintaining a user-to-playgroup mapping table
-            const allGroups = await ddbDocClient.send(new QueryCommand({
+            const allGroups = await ddbDocClient.send(new ScanCommand({
                 TableName: PLAYGROUPS_TABLE
             }));
 

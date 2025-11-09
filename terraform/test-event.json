@@ -1,0 +1,14 @@
+{
+  "httpMethod": "GET",
+  "queryStringParameters": null,
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "test-user-id",
+        "email": "test@test.com",
+        "custom:role": "Admin"
+      }
+    }
+  }
+}
+
