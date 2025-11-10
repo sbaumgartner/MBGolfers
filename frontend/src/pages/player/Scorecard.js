@@ -31,15 +31,20 @@ export const Scorecard = () => {
     setError('');
 
     try {
-      // Load session details
-      const sessionData = await ApiService.getSessions(null, sessionId);
-      setSession(sessionData);
+      // Load session details - use correct query parameter pattern
+      const sessionData = await ApiService.getSessions({ sessionId });
+      setSession(sessionData.sessions && sessionData.sessions[0] ? sessionData.sessions[0] : null);
 
       // Load existing scorecard if it exists
       try {
         const scorecardData = await ApiService.getScorecard(sessionId, user.userId);
-        setScorecard(scorecardData);
-        setScores(scorecardData.scores || Array(18).fill(null));
+        if (scorecardData) {
+          setScorecard(scorecardData);
+          // Backend stores scores in 'holes' array
+          setScores(scorecardData.holes || Array(18).fill(null));
+        } else {
+          setScores(Array(18).fill(null));
+        }
       } catch (err) {
         // No existing scorecard, start with empty scores
         setScores(Array(18).fill(null));
@@ -67,7 +72,9 @@ export const Scorecard = () => {
     setSuccessMessage('');
 
     try {
-      await ApiService.submitScorecard(sessionId, user.userId, scores);
+      // Convert null scores to 0 for backend (backend requires all scores to be numbers)
+      const scoresForSubmission = scores.map(score => score === null ? 0 : score);
+      await ApiService.submitScorecard(sessionId, user.userId, scoresForSubmission);
       setSuccessMessage('Scorecard saved successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
