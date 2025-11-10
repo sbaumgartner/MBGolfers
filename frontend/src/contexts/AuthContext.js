@@ -4,7 +4,7 @@
  */
 
 import React, { createContext, useState, useEffect } from 'react';
-import { Auth } from 'aws-amplify';
+import { signUp as amplifySignUp, signIn as amplifySignIn, signOut as amplifySignOut, confirmSignUp as amplifyConfirmSignUp, fetchAuthSession, fetchUserAttributes, getCurrentUser } from 'aws-amplify/auth';
 
 export const AuthContext = createContext();
 
@@ -20,14 +20,14 @@ export const AuthProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const currentUser = await Auth.currentAuthenticatedUser();
-      const attributes = await Auth.userAttributes(currentUser);
+      const currentUser = await getCurrentUser();
+      const attributes = await fetchUserAttributes();
 
       const userInfo = {
         username: currentUser.username,
-        email: attributes.find(attr => attr.Name === 'email')?.Value,
-        role: attributes.find(attr => attr.Name === 'custom:role')?.Value || 'Player',
-        userId: currentUser.attributes.sub
+        email: attributes.email,
+        role: attributes['custom:role'] || 'Player',
+        userId: attributes.sub
       };
 
       setUser(userInfo);
@@ -43,16 +43,18 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const { user } = await Auth.signUp({
+      const { userId } = await amplifySignUp({
         username: email,
         password,
-        attributes: {
-          email,
-          name
+        options: {
+          userAttributes: {
+            email,
+            name
+          }
         }
       });
 
-      return user;
+      return { userId };
     } catch (err) {
       setError(err.message);
       throw err;
@@ -66,10 +68,16 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const user = await Auth.signIn(email, password);
-      await checkUser();
+      const { isSignedIn } = await amplifySignIn({
+        username: email,
+        password
+      });
+      
+      if (isSignedIn) {
+        await checkUser();
+      }
 
-      return user;
+      return { isSignedIn };
     } catch (err) {
       setError(err.message);
       throw err;
@@ -80,7 +88,7 @@ export const AuthProvider = ({ children }) => {
 
   const signOut = async () => {
     try {
-      await Auth.signOut();
+      await amplifySignOut();
       setUser(null);
     } catch (err) {
       setError(err.message);
@@ -90,7 +98,10 @@ export const AuthProvider = ({ children }) => {
 
   const confirmSignUp = async (email, code) => {
     try {
-      await Auth.confirmSignUp(email, code);
+      await amplifyConfirmSignUp({
+        username: email,
+        confirmationCode: code
+      });
     } catch (err) {
       setError(err.message);
       throw err;
