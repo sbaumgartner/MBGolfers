@@ -29,7 +29,17 @@ import { SessionSummary } from './pages/shared/SessionSummary';
 import './App.css';
 
 // Configure Amplify
-Amplify.configure(awsconfig);
+Amplify.configure({
+  ...awsconfig,
+  API: {
+    REST: {
+      'golf-api': {
+        endpoint: 'https://7qbbn65c83.execute-api.us-east-1.amazonaws.com/dev',
+        region: 'us-east-1'
+      }
+    }
+  }
+});
 
 function App() {
   return (

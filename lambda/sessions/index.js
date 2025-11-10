@@ -7,7 +7,7 @@
  */
 
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, BatchWriteCommand } = require('@aws-sdk/lib-dynamodb');
+const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, ScanCommand, BatchWriteCommand } = require('@aws-sdk/lib-dynamodb');
 const { v4: uuidv4 } = require('uuid');
 
 const client = new DynamoDBClient({ region: process.env.REGION });
@@ -67,6 +67,7 @@ function generateFoursomes(sessionId, playerIds) {
 /**
  * GET /sessions
  * Query parameters:
+ * - (none): Get all sessions for user's playgroups
  * - sessionId: Get specific session
  * - playgroupId: Get all sessions for a playgroup
  */
@@ -75,7 +76,38 @@ async function handleGet(event) {
     const queryParams = event.queryStringParameters || {};
 
     try {
-        if (queryParams.sessionId) {
+        if (!queryParams.sessionId && !queryParams.playgroupId) {
+            // Get all sessions for user's playgroups
+            // First, get all playgroups where user is a member
+            const playgroupsResult = await ddbDocClient.send(new ScanCommand({
+                TableName: PLAYGROUPS_TABLE,
+                FilterExpression: 'contains(memberIds, :userId) OR leaderId = :userId',
+                ExpressionAttributeValues: {
+                    ':userId': currentUser.userId
+                }
+            }));
+
+            const playgroups = playgroupsResult.Items || [];
+            const allSessions = [];
+
+            // Get sessions for each playgroup
+            for (const playgroup of playgroups) {
+                const sessionsResult = await ddbDocClient.send(new QueryCommand({
+                    TableName: SESSIONS_TABLE,
+                    IndexName: 'PlaygroupDateIndex',
+                    KeyConditionExpression: 'playgroupId = :playgroupId',
+                    ExpressionAttributeValues: {
+                        ':playgroupId': playgroup.playgroupId
+                    }
+                }));
+                allSessions.push(...(sessionsResult.Items || []));
+            }
+
+            // Sort by date descending
+            allSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            return response(200, { sessions: allSessions });
+        } else if (queryParams.sessionId) {
             // Get specific session
             const result = await ddbDocClient.send(new GetCommand({
                 TableName: SESSIONS_TABLE,
