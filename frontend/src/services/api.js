@@ -8,29 +8,27 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 
 const API_NAME = 'golf-api';
 
-// Helper to get auth headers
-async function getAuthHeaders() {
+// Helper to get auth token
+async function getAuthToken() {
   try {
     const session = await fetchAuthSession();
     const token = session.tokens?.idToken?.toString();
-
+    
     if (!token) {
       console.warn('No auth token found');
-      return {};
     }
-
-    return {
-      Authorization: token
-    };
+    
+    return token;
   } catch (error) {
     console.error('Error fetching auth session:', error);
-    return {};
+    return null;
   }
 }
 
 class ApiService {
   // Users API
   static async getUsers(params = {}) {
+    const token = await getAuthToken();
     const queryString = new URLSearchParams(params).toString();
     const path = `/users${queryString ? `?${queryString}` : ''}`;
     const restOperation = get({
@@ -38,7 +36,7 @@ class ApiService {
       path: path,
       options: {
         headers: {
-          'Content-Type': 'application/json'
+          Authorization: token
         }
       }
     });
@@ -47,10 +45,14 @@ class ApiService {
   }
 
   static async updateUserRole(userId, role) {
+    const token = await getAuthToken();
     const restOperation = post({
       apiName: API_NAME,
       path: '/users',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: { userId, role }
       }
     });
@@ -60,20 +62,30 @@ class ApiService {
 
   // Playgroups API
   static async getPlaygroups(playgroupId = null) {
+    const token = await getAuthToken();
     const path = playgroupId ? `/playgroups?playgroupId=${playgroupId}` : '/playgroups';
     const restOperation = get({
       apiName: API_NAME,
-      path: path
+      path: path,
+      options: {
+        headers: {
+          Authorization: token
+        }
+      }
     });
     const { body } = await restOperation.response;
     return await body.json();
   }
 
   static async createPlaygroup(name, description = '') {
+    const token = await getAuthToken();
     const restOperation = post({
       apiName: API_NAME,
       path: '/playgroups',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: { name, description }
       }
     });
@@ -82,10 +94,14 @@ class ApiService {
   }
 
   static async addMemberToPlaygroup(playgroupId, userId) {
+    const token = await getAuthToken();
     const restOperation = post({
       apiName: API_NAME,
       path: '/playgroups',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: {
           action: 'addMember',
           playgroupId,
@@ -99,54 +115,31 @@ class ApiService {
 
   // Sessions API
   static async getSessions(params = {}) {
-    try {
-      // Check if user is authenticated
-      const session = await fetchAuthSession();
-      console.log('Auth session:', session);
-      console.log('Has tokens?', !!session.tokens);
-      console.log('ID Token?', !!session.tokens?.idToken);
-
-      if (session.tokens?.idToken) {
-        const token = session.tokens.idToken.toString();
-        console.log('Token (first 50 chars):', token.substring(0, 50));
-      }
-
-      const queryString = new URLSearchParams(params).toString();
-      const path = `/sessions${queryString ? `?${queryString}` : ''}`;
-
-      console.log('Making API call to:', path);
-      console.log('API Name:', API_NAME);
-
-      const restOperation = get({
-        apiName: API_NAME,
-        path: path,
-        options: {
-          headers: {
-            Authorization: session.tokens.idToken.toString()
-          }
+    const token = await getAuthToken();
+    const queryString = new URLSearchParams(params).toString();
+    const path = `/sessions${queryString ? `?${queryString}` : ''}`;
+    const restOperation = get({
+      apiName: API_NAME,
+      path: path,
+      options: {
+        headers: {
+          Authorization: token
         }
-      });
-
-      console.log('Rest operation created, awaiting response...');
-
-      const response = await restOperation.response;
-      console.log('API Response status:', response.statusCode);
-      console.log('Response headers:', response.headers);
-
-      const { body } = response;
-      return await body.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      console.error('Error details:', error.response);
-      throw error;
-    }
+      }
+    });
+    const { body } = await restOperation.response;
+    return await body.json();
   }
 
   static async createSession(playgroupId, date, time, courseName = 'Default Course') {
+    const token = await getAuthToken();
     const restOperation = post({
       apiName: API_NAME,
       path: '/sessions',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: { playgroupId, date, time, courseName }
       }
     });
@@ -156,19 +149,29 @@ class ApiService {
 
   // Foursomes API
   static async getFoursomes(sessionId) {
+    const token = await getAuthToken();
     const restOperation = get({
       apiName: API_NAME,
-      path: `/foursomes?sessionId=${sessionId}`
+      path: `/foursomes?sessionId=${sessionId}`,
+      options: {
+        headers: {
+          Authorization: token
+        }
+      }
     });
     const { body } = await restOperation.response;
     return await body.json();
   }
 
   static async updateFoursome(foursomeId, playerIds) {
+    const token = await getAuthToken();
     const restOperation = put({
       apiName: API_NAME,
       path: '/foursomes',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: { foursomeId, playerIds }
       }
     });
@@ -178,21 +181,31 @@ class ApiService {
 
   // Scores API
   static async getScores(params = {}) {
+    const token = await getAuthToken();
     const queryString = new URLSearchParams(params).toString();
     const path = `/scores${queryString ? `?${queryString}` : ''}`;
     const restOperation = get({
       apiName: API_NAME,
-      path: path
+      path: path,
+      options: {
+        headers: {
+          Authorization: token
+        }
+      }
     });
     const { body } = await restOperation.response;
     return await body.json();
   }
 
   static async updateScore(foursomeId, playerId, holes) {
+    const token = await getAuthToken();
     const restOperation = put({
       apiName: API_NAME,
       path: '/scores',
       options: {
+        headers: {
+          Authorization: token
+        },
         body: { foursomeId, playerId, holes }
       }
     });
